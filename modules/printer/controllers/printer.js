@@ -17,10 +17,11 @@ module.exports.create = (req, res) => {
 
     const key = hash.sha1(JSON.stringify(new Date()));
     const body = req.body.html;
-    const savePath = `tmp/printer/${key}.pdf`;
+    const filename = `${key}.pdf`;
+    const link = req.protocol + '://' + req.get('host') + '/printer/' + key;
 
-    pdf.file(body, savePath, options)
-        .then(success => res.status(201).json({status: 201, id: key, link: success.filename}))
+    pdf.store(body, filename, options)
+        .then(success => res.status(201).json({id: key, status: 201, link: link, savepath: success.filename}))
         .catch(err => res.status(500).json(err));
 
 };
@@ -31,5 +32,13 @@ module.exports.create = (req, res) => {
  * @param {*} res 
  */
 module.exports.read = (req, res) => {
+    const key = req.params.id;
+    const filename = `${key}.pdf`;
+
+    pdf.read(key).then(stream => {
+        res.setHeader('Content-disposition', 'inline; filename="' + filename + '"');
+        res.setHeader('Content-type', 'application/pdf');
+        stream.pipe(res);
+    });
 
 };

@@ -1,0 +1,20 @@
+version: '3'
+services:
+
+  drawer-api:
+    build: .
+    command: npm run dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    networks:
+      - backend-service
+    environment:
+      - S3_BUCKET=drawers_temp
+      - S3_ACCESS_KEY=123
+      - S3_SECRET_KEY=123
+      - S3_REGION=us-east-1
+
+networks:
+  backend-service:
